@@ -1,7 +1,8 @@
-package main
+package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/lechengbao/gen_id"
 	"net/http"
 )
 
@@ -13,7 +14,7 @@ type UserInfo struct {
 
 var UserMessage = make([]UserInfo, 0)
 
-func registerHandler(c *gin.Context) {
+func RegisterHandler(c *gin.Context) {
 	if c.Request.Method == "POST" {
 		var u UserInfo
 		if err := c.ShouldBind(&u); err != nil {
@@ -32,7 +33,7 @@ func registerHandler(c *gin.Context) {
 			}
 		}
 
-		u.Id = GenId()
+		u.Id = gen_id.GenId()
 		UserMessage = append(UserMessage, u)
 		c.HTML(http.StatusOK, "home.html", nil)
 	} else {
@@ -40,7 +41,7 @@ func registerHandler(c *gin.Context) {
 	}
 }
 
-func loginHandler(c *gin.Context) {
+func LoginHandler(c *gin.Context) {
 	if c.Request.Method == "POST" {
 		var u UserInfo
 		if err := c.ShouldBind(&u); err != nil {
