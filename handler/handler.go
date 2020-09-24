@@ -6,17 +6,20 @@ import (
 	"net/http"
 )
 
+//这个放弃了，新写了在 user.go 中
+
 type UserInfo struct {
-	Id int
-	Username string `form:"username"`
+	Username int64 `form:"username"`
 	Password string `form:"password"`
 }
 
 var UserMessage = make([]UserInfo, 0)
 
 func RegisterHandler(c *gin.Context) {
+	var u UserInfo
+	u.Username, _ = gen_id.GetInt64ID()
+
 	if c.Request.Method == "POST" {
-		var u UserInfo
 		if err := c.ShouldBind(&u); err != nil {
 			c.HTML(http.StatusOK, "register.html", gin.H{
 				"err":"用户名密码不能为空",
@@ -24,20 +27,12 @@ func RegisterHandler(c *gin.Context) {
 			return
 		}
 
-		for _, user := range UserMessage {
-			if u.Username == user.Username {
-				c.HTML(http.StatusOK, "register.html", gin.H{
-					"err":"用户名已经存在",
-				})
-				return
-			}
-		}
-
-		u.Id = gen_id.GenId()
 		UserMessage = append(UserMessage, u)
 		c.HTML(http.StatusOK, "home.html", nil)
 	} else {
-		c.HTML(http.StatusOK, "register.html", nil)
+		c.HTML(http.StatusOK, "register.html", gin.H{
+			"username":u.Username,
+		})
 	}
 }
 
