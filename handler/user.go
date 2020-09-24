@@ -36,6 +36,7 @@ func Register(c *gin.Context) {
 		})
 	}
 
+	//POST请求对用户进行注册
 	if c.Request.Method == "POST" {
 		var u User
 		if err := c.ShouldBindJSON(&u); err != nil {
@@ -43,6 +44,21 @@ func Register(c *gin.Context) {
 				"err":"参数解析错误",
 			})
 		}
+
+		if u.Nickname == "" {
+			c.JSON(http.StatusOK, gin.H{
+				"err":"请输入你的昵称",
+			})
+			return
+		}
+
+		if u.Password == "" {
+			c.JSON(http.StatusOK, gin.H{
+				"err":"请输入你的密码",
+			})
+			return
+		}
+
 		//用户名管理中需要有申请的用户名
 		for i, username := range NameMsg {
 			if u.Username == username {
@@ -50,6 +66,7 @@ func Register(c *gin.Context) {
 				NameMsg = append(NameMsg[:i], NameMsg[i+1:]...)	//用户已经注册，删除用户名管理中该名
 
 				c.JSON(http.StatusOK, gin.H{
+					"msg":"注册成功",
 					"user":u,
 				})
 				return
@@ -79,12 +96,13 @@ func Login(c *gin.Context) {
 		if user.Username == u.Username {
 			if user.Password == u.Password {
 				c.JSON(http.StatusOK, gin.H{
-					"answer":"Success",
+					"msg":"登录成功",
+					"user":user,
 				})
 				return
 			} else {
 				c.JSON(http.StatusOK, gin.H{
-					"answer":"password error",
+					"msg":"密码错误",
 				})
 				return
 			}
@@ -92,6 +110,6 @@ func Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"answer":"username error",
+		"msg":"用户名不存在",
 	})
 }
