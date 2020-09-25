@@ -8,7 +8,7 @@ import (
 
 func main() {
 	r := gin.Default()
-	r.LoadHTMLGlob("template/*")
+	//r.LoadHTMLGlob("template/*")
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")

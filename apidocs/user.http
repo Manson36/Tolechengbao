@@ -17,9 +17,9 @@ Content-Type: {{contentType}}
 
 
 {
-"username":"151246602240",
-"nickname":"Kitty",
-"password":"123"
+"username":"174815444992",
+"nickname":"吉吉国王",
+"password":"1234"
 }
 
 ###user/login:用户登录
@@ -31,8 +31,8 @@ POST {{base_url}}/user/login
 Context-Type:{{contextType}}
 
 {
-"username":"150415081472",
-"password":"123"
+"username":"174815444992",
+"password":"1234"
 }
 
 ###

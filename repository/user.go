@@ -16,8 +16,8 @@ func CreateUser(user *datamodels.User) error {
 }
 
 func GetUser(query interface{}, args ...interface{}) ( *datamodels.User, error) {
-	var user = &datamodels.User{}
-	err := datasource.PqDB.Take(user).Where(query, args...).Error
+	var user = &datamodels.User{} 	//这里需要对user初始化，创建实例，否则读取失败
+	err := datasource.PqDB.Where(query, args...).Take(user).Error	//在这里犯了一个错误，先写Take再写Where，查询是：select * form le_users Limit 1
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return nil, nil
