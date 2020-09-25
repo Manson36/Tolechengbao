@@ -17,7 +17,7 @@ Content-Type: {{contentType}}
 
 
 {
-"username":"140442075136",
+"username":"151246602240",
 "nickname":"Kitty",
 "password":"123"
 }
@@ -31,7 +31,7 @@ POST {{base_url}}/user/login
 Context-Type:{{contextType}}
 
 {
-"username":"140442075136",
+"username":"150415081472",
 "password":"123"
 }
 

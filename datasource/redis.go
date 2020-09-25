@@ -2,36 +2,40 @@ package datasource
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"github.com/go-redis/redis/v8"
 )
 
-var Rds *redis.Client
+type rds struct {
+	*redis.Client
+}
 
-func init() {
+func (r *rds)initDB() {
 	//初始化redis 连接
-	Rds = redis.NewClient(&redis.Options{
-		Addr:"127.0.0.1:6379",
-		Password:"",
-		DB:0,
+	client := redis.NewClient(&redis.Options{
+		Addr:     "127.0.0.1:6379",
+		Password: "",
+		DB:       0,
 	})
 
-	_, err := Rds.Ping(context.Background()).Result()
+	_, err := client.Ping(context.Background()).Result()
 	if err != nil {
 		panic(err)
 	}
+
+	r.Client = client
 }
 
-func SaveToRedis(key string, data interface{}) (err error) {
-	value, err := json.Marshal(data)
-	if err != nil {
-		return fmt.Errorf("marshal data error:%v", err)
-	}
+var Rds = &rds{}
 
-	Rds.Set(context.Background(), key, value, 0)
-	return
-}
+//func SaveToRedis(key string, data interface{}) (err error) {
+//	value, err := json.Marshal(data)
+//	if err != nil {
+//		return fmt.Errorf("marshal data error:%v", err)
+//	}
+//
+//	Rds.Set(context.Background(), key, value, 0)
+//	return
+//}
 
 //func GetFromRedis(key string) (interface{}, error) {
 //	value, err := Rds.Get(context.Background(), key).Result()
