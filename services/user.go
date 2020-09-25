@@ -31,7 +31,7 @@ func RegisterService(body *models.AddUserReqBody) *models.Ret {
 		panic(err)
 	}
 
-	//这里省去了验证用户名在数据库中是否存在，因为用户名是自己生成的，不会重复
+	//这里省去了验证用户名在数据库中是否存在，逻辑与登录相似，user != nil, return
 	id, _ := strconv.ParseInt(username, 10, 64)
 	var user = datamodels.User{
 		ID: id,

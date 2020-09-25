@@ -17,9 +17,9 @@ Content-Type: {{contentType}}
 
 
 {
-"username":"174815444992",
-"nickname":"吉吉国王",
-"password":"1234"
+"username":"176565518336",
+"nickname":"吉吉蜥蜴",
+"password":"12345"
 }
 
 ###user/login:用户登录
@@ -31,8 +31,8 @@ POST {{base_url}}/user/login
 Context-Type:{{contextType}}
 
 {
-"username":"174815444992",
-"password":"1234"
+"username":"17656518336",
+"password":"12345"
 }
 
 ###
