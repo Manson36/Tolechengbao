@@ -4,7 +4,7 @@
 go version：go1.13.5
 
 ##五个题的回答
-1. 在`gen_id`包中
+1. 在`gen_id`包中De gen_id_snow
 2. 代码展示
 3.可以使用redis作为缓存，并将用户数据存入MySQL中
     用户注册方案：

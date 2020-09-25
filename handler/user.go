@@ -1,11 +1,16 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
+	"github.com/lechengbao/datasource"
 	"github.com/lechengbao/gen_id"
 	"net/http"
+	"strconv"
 	"sync"
+	"time"
 )
 
 type User struct {
@@ -17,7 +22,7 @@ type User struct {
 var(
 	mu = sync.Mutex{}
 	UserMsg = make([]User, 0)
-	NameMsg = make([]int64, 0) //解决GET请求注册页面时给的用户名和POST请求注册 用户名不一致问题
+	//NameMsg = make([]int64, 0) //解决GET请求注册页面时给的用户名和POST请求注册 用户名不一致问题
 )
 
 //TODO：UserMsg写入数据库中；NameMsg写入Redis中；中间件保持用户登录状态
@@ -29,7 +34,10 @@ func Register(c *gin.Context) {
 	//GET请求返回用户名，并将用户名写入注册用户名管理中
 	if c.Request.Method == "GET" {
 		username, _ := gen_id.GetInt64ID()
-		NameMsg = append(NameMsg, username)
+		nameStr := strconv.FormatInt(username, 10)
+		//NameMsg = append(NameMsg, username)
+		//将用户名存入缓存中，注册完成删除
+		datasource.Rds.Set(context.Background(), nameStr, nameStr, time.Second*3600)
 
 		c.JSON(http.StatusOK, gin.H{
 			"username":username,
@@ -58,23 +66,40 @@ func Register(c *gin.Context) {
 			})
 			return
 		}
+		//redis库中查找注册用户名
+		_, err := datasource.Rds.Get(context.Background(), strconv.FormatInt(u.Username, 10)).Result()
+		if err == redis.Nil {
+			c.JSON(http.StatusOK, gin.H{
+				"err":"请返回正确的用户名",
+			})
+		}else if err != nil {
+			panic(err)
+		} else {
+			UserMsg = append(UserMsg, u)
+			datasource.Rds.Del(context.Background(), strconv.FormatInt(u.Username, 10))
 
-		//用户名管理中需要有申请的用户名
-		for i, username := range NameMsg {
-			if u.Username == username {
-				UserMsg = append(UserMsg, u)	//将用户信息写入库中
-				NameMsg = append(NameMsg[:i], NameMsg[i+1:]...)	//用户已经注册，删除用户名管理中该名
-
-				c.JSON(http.StatusOK, gin.H{
-					"msg":"注册成功",
-					"user":u,
-				})
-				return
-			}
+			c.JSON(http.StatusOK, gin.H{
+				"msg":"注册成功",
+				"user":u,
+			})
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"err":"请返回正确的用户名",
-		})
+
+		////用户名管理中需要有申请的用户名
+		//for i, username := range NameMsg {
+		//	if u.Username == username {
+		//		UserMsg = append(UserMsg, u)	//将用户信息写入库中
+		//		NameMsg = append(NameMsg[:i], NameMsg[i+1:]...)	//用户已经注册，删除用户名管理中该名
+		//
+		//		c.JSON(http.StatusOK, gin.H{
+		//			"msg":"注册成功",
+		//			"user":u,
+		//		})
+		//		return
+		//	}
+		//}
+		//c.JSON(http.StatusOK, gin.H{
+		//	"err":"请返回正确的用户名",
+		//})
 	}
 }
 
