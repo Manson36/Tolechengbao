@@ -14,7 +14,7 @@ import (
 )
 
 type User struct {
-	Username int64 `json:"username, string"`
+	Username string `json:"username"`
 	Nickname string `json:"nickname"`
 	Password string `json:"password"`
 }
@@ -40,7 +40,7 @@ func Register(c *gin.Context) {
 		datasource.Rds.Set(context.Background(), nameStr, nameStr, time.Second*3600)
 
 		c.JSON(http.StatusOK, gin.H{
-			"username":username,
+			"username":nameStr,
 		})
 	}
 
@@ -51,6 +51,7 @@ func Register(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"err":"参数解析错误",
 			})
+			return
 		}
 
 		if u.Nickname == "" {
@@ -67,7 +68,7 @@ func Register(c *gin.Context) {
 			return
 		}
 		//redis库中查找注册用户名
-		_, err := datasource.Rds.Get(context.Background(), strconv.FormatInt(u.Username, 10)).Result()
+		_, err := datasource.Rds.Get(context.Background(), u.Username).Result()
 		if err == redis.Nil {
 			c.JSON(http.StatusOK, gin.H{
 				"err":"请返回正确的用户名",
@@ -76,7 +77,7 @@ func Register(c *gin.Context) {
 			panic(err)
 		} else {
 			UserMsg = append(UserMsg, u)
-			datasource.Rds.Del(context.Background(), strconv.FormatInt(u.Username, 10))
+			datasource.Rds.Del(context.Background(), u.Username)
 
 			c.JSON(http.StatusOK, gin.H{
 				"msg":"注册成功",
@@ -114,6 +115,7 @@ func Login(c *gin.Context) {
 			"err":"用户登录参数解析失败",
 		})
 		fmt.Println(err)
+		return
 	}
 
 	//请求参数验证
